@@ -1,107 +1,111 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-	<meta charset="UTF-8" />
-	<title>RepeatHTML</title>
+    <meta charset="UTF-8" />
+    <title>RepeatHTML</title>
 </head>
 
 <body>
-	<table border>
-		<tr data-repeat='row in [1,2,3]'>
-			<td data-repeat='col in [1,2,3]'>
-				{{ row }} - {{ col }}
-			</td>
-		</tr>
-	</table>
+    <table border>
+        <tr data-repeat='row in [1,2,3]'>
+            <td data-repeat='col in [1,2,3]'>
+                {{ row }} - {{ col }}
+            </td>
+        </tr>
+    </table>
 
-	<div data-repeat='item in repeatMe' data-id='{{ item }}'>
-	    Repetime ome! <b>{{ item }}</b>
-	</div>
+    <div data-repeat='item in repeatMe' data-id='{{ item }}'>
+        Repetime ome!
+        <b>{{ item }}</b>
+    </div>
 
-	<h1>un h1 por aqui</h1>
+    <h1>un h1 por aqui</h1>
 
-	<ul>
-	    <li data-repeat='item in [{name: "nombre1", lastName: "ape1"}, {name: "nombre2", lastName: "ape2"}, {name: "nombre3", lastName: "ape3"}]'>
-	    	{{item.name}} - {{ item.lastName }}
-	    </li>
-	</ul>
+    <ul>
+        <li data-repeat='item in [{name: "nombre1", lastName: "ape1"}, {name: "nombre2", lastName: "ape2"}, {name: "nombre3", lastName: "ape3"}]'>
+            {{item.name}} - {{ item.lastName }}
+        </li>
+    </ul>
 
-	<h1>otro h1 por alli</h1>
+    <h1>otro h1 por alli</h1>
 
-	<input type="text" id="userFilter" placeholder="Filtro por nombre" />
+    <input type="text" id="userFilter" placeholder="Filtro por nombre" />
 
-	<ul>
-		<li>
-			<code>
-				filter='#userFilter'
-			</code>
-		</li>
-	    <li data-repeat='user in users' data-filter='#userFilter'>
-	        <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
-	    </li>
-	</ul>
+    <ul>
+        <li>
+            <code>
+                filter='#userFilter'
+            </code>
+        </li>
+        <li data-repeat='user in users' data-filter='#userFilter'>
+            <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
+        </li>
+    </ul>
 
-	<ul>
-		<li>
-			<code>
-				filter='name as #userFilter'
-			</code>
-		</li>
-	    <li data-repeat='user in users' data-filter='name as #userFilter'>
-	        <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
-	    </li>
-	</ul>
+    <ul>
+        <li>
+            <code>
+                filter='name as #userFilter'
+            </code>
+        </li>
+        <li data-repeat='user in users' data-filter='name as #userFilter'>
+            <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
+        </li>
+    </ul>
 
-	<ul>
-		<li>
-			<code>
-				filter='name as #userFilter%'
-			</code>
-		</li>
-	    <li data-repeat='user in users' data-filter='name as #userFilter%'>
-	        <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
-	    </li>
-	</ul>
+    <ul>
+        <li>
+            <code>
+                filter='name as #userFilter%'
+            </code>
+        </li>
+        <li data-repeat='user in users' data-filter='name as #userFilter%'>
+            <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
+        </li>
+    </ul>
 
-	<ul>
-		<li>
-			<code>
-				filter='name as %#userFilter'
-			</code>
-		</li>
-	    <li data-repeat='user in users' data-filter='name as %#userFilter'>
-	        <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
-	    </li>
-	</ul>
+    <ul>
+        <li>
+            <code>
+                filter='name as %#userFilter'
+            </code>
+        </li>
+        <li data-repeat='user in users' data-filter='name as %#userFilter'>
+            <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
+        </li>
+    </ul>
 
-	<ul>
-		<li>
-			<code>
-				filter='name as %#userFilter%'
-			</code>
-		</li>
-	    <li data-repeat='user in users' data-filter='name as %#userFilter%'>
-	        <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
-	    </li>
-	</ul>
+    <ul>
+        <li>
+            <code>
+                filter='name as %#userFilter%'
+            </code>
+        </li>
+        <li data-repeat='user in users' data-filter='name as %#userFilter%'>
+            <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
+        </li>
+    </ul>
 
-	<ul>
-	    <li data-repeat='user in users' data-filter='name like %c'>
-	        <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
-	    </li>
-	</ul>
+    <ul>
+        <li data-repeat='user in users' data-filter='name like %c'>
+            <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
+        </li>
+    </ul>
 
-	<ul>
-	    <li data-repeat='user in users' data-filter='name like %user%'>
-	        <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
-	    </li>
-	</ul>
+    <ul>
+        <li data-repeat='user in users' data-filter='name like %user%'>
+            <button id='{{ user.name }}'>{{ user.name }} - {{ user.lastName }}</button>
+        </li>
+    </ul>
 
-	<div data-repeat='item in [[123,1],[456,2],[789,3],[1011,4],[1213,5]]'>
-	    <b>{{ item.0 }}</b> - <b>{{ item[ 1 ] }}</b>
-	</div>
+    <div data-repeat='item in [[123,1],[456,2],[789,3],[1011,4],[1213,5]]'>
+        <b>{{ item.0 }}</b> -
+        <b>{{ item[ 1 ] }}</b>
+    </div>
 
-	<script src='repeat-html.js'></script>
-	<script src='test.js'></script>
+    <script src='repeat-html.js'></script>
+    <script src='test.js'></script>
 </body>
+
 </html>
