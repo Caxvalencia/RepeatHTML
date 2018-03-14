@@ -1,6 +1,6 @@
 declare let document;
 
-let patterns = {
+const patterns = {
     keyTypeArray: /\[\s*(\d+)\s*\]+/g,
     params: /\{\s*(\d+)\s*\}+/g,
     splitQuery: /\s+in\s+/,
@@ -104,40 +104,47 @@ export class RepeatHTML {
         ) {
             _filter = filtro.split(patterns.filters.as);
 
-            var prop = _filter[0],
-                selector = _filter[1];
+            let prop = _filter[0];
+            let selector = _filter[1];
 
             if (!selector) {
                 selector = prop;
                 prop = null;
             }
 
-            var elem = document.getElementById(
+            let elem = document.getElementById(
                 selector.replace(/#|^%|%$/g, '')
             );
 
-            if (!elem) return self;
+            if (!elem) {
+                return self;
+            }
 
-            var hasPercentIni = /^%/g.test(selector) ? '^' : '',
-                hasPercentFin = /%$/g.test(selector) ? '$' : '';
+            let hasPercentIni = /^%/g.test(selector) ? '^' : '';
+            let hasPercentFin = /%$/g.test(selector) ? '$' : '';
 
             filtro = elem.value; //para llamarlo una primera vez
 
             elem.addEventListener('keyup', function() {
-                var _this = this;
+                let _this = this;
 
                 self._scope[varName].data = self._scope[
                     varName
                 ].originalData.filter(function(data) {
-                    var patron = new RegExp(
+                    let patron = new RegExp(
                         hasPercentIni + _this.value + hasPercentFin,
                         'gi'
                     );
 
-                    if (prop) return patron.test(data[prop]);
-                    else
-                        for (var _prop in data)
-                            if (patron.test(data[_prop])) return true;
+                    if (prop) {
+                        return patron.test(data[prop]);
+                    }
+
+                    for (const _prop in data) {
+                        if (patron.test(data[_prop])) {
+                            return true;
+                        }
+                    }
                 });
 
                 self.refresh(varName, element);
@@ -276,9 +283,9 @@ function reRender(varName, element) {
         elementData.childs.splice(1, elementData.childs.length);
 
         repeatData.datas.forEach(function(data) {
-            var objData = {},
-                //No se necesita clonar el contenido ya que este sera reescrito
-                elementCloned = elementData.elementClone.cloneNode(false);
+            let objData = {};
+            //No se necesita clonar el contenido ya que este sera reescrito
+            let elementCloned = elementData.elementClone.cloneNode(false);
 
             objData[repeatData.varsIterate] = data;
             elementCloned.innerHTML = renderTemplate(elementHTML, objData);
@@ -420,9 +427,9 @@ function renderTemplate(template, datas) {
     return template
         .replace(patterns.keyTypeArray, '.$1')
         .replace(patterns.findTemplateVars, function(find, key) {
-            var partsKey = key.split('.'),
-                finder = datas[partsKey[0]],
-                idx;
+            let partsKey = key.split('.');
+            let finder = datas[partsKey[0]];
+            let idx;
 
             for (idx = 1; idx < partsKey.length; idx++) {
                 finder = finder[partsKey[idx]];
