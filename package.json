@@ -4,8 +4,7 @@
   "description": "Repeat HTML elements",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "test": "tsc && mocha build/tests/*Test.js",
+    "start": "webpack --config webpack.config.js",
     "watch": "mocha-typescript-watch"
   },
   "keywords": [],
@@ -21,6 +20,9 @@
     "mocha-typescript": "^1.1.2",
     "sinon": "^2.2.0",
     "source-map-support": "^0.4.15",
-    "typescript": "^2.7.2"
+    "ts-loader": "^4.0.1",
+    "typescript": "^2.7.2",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.12"
   }
 }
