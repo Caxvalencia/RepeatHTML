@@ -1,21 +1,6 @@
-declare let document;
+import { patterns } from "./patterns";
 
-const patterns = {
-    keyTypeArray: /\[\s*(\d+)\s*\]+/g,
-    params: /\{\s*(\d+)\s*\}+/g,
-    splitQuery: /\s+in\s+/,
-    findTemplateVars: /\{\{\s*([\[\]\$\.\_0-9a-zA-Z]+)\s*\}\}/g,
-    splitQueryVars: /\s*,\s*/,
-    isArraySintax: {
-        ini: /(?=^\s*\[)/,
-        end: /(?=\]\s*$)/
-    },
-    filters: {
-        like: /\s+like\s+/,
-        as: /\s+as\s+/
-    },
-    hasSelectorCss: /^(#|\.)\S/
-};
+declare let document;
 
 /**
  * @constructor RepeatHTML
@@ -49,7 +34,7 @@ export class RepeatHTML {
      * @param {Object[]} data - Informacion o datos a almacenar
      * @param {Object|Function|Array} funcBacks - Funciones que se ejecutaran al actualizar el modelo de datos
      */
-    scope(varName, data, funcBacks) {
+    scope(varName, data, funcBacks?) {
         if (typeof varName !== 'string') {
             return this;
         }
