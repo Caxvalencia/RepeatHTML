@@ -27,15 +27,13 @@ export class RepeatHTML {
     _filters: {};
     REPEAT_ATTR_NAME: any;
 
-    constructor(config) {
-        config = config || {};
-
+    constructor(config: any = {}) {
         this.REPEAT_ATTR_NAME = config.attrName || 'repeat';
         this._filters = {};
         this._scope = config.scope || {};
         this._originalElements = null;
 
-        searchFilters.call(this);
+        this.searchFilters();
 
         if (config.compile || config.compile === undefined) {
             init.call(this, false, false);
@@ -184,6 +182,29 @@ export class RepeatHTML {
         // return this;
     }
 
+    searchFilters() {
+        let queryFilters = document.querySelectorAll('[data-filter]');
+
+        if (queryFilters.length <= 0) {
+            return;
+        }
+
+        let element = null;
+        let queryRepeat = '';
+
+        for (let i = 0; (element = queryFilters[i]); i++) {
+            queryRepeat = element.dataset[this.REPEAT_ATTR_NAME].split(
+                patterns.splitQuery
+            );
+
+            element.dataset.filter
+                .split(patterns.splitQueryVars)
+                .forEach(filter => {
+                    this.filter(queryRepeat[1], filter, element);
+                });
+        }
+    }
+
     /**
      * Filtrar la lista de datos dependiendo del parametro dado
      * @public
@@ -210,100 +231,78 @@ export class RepeatHTML {
             init.call(this, false, false);
         }
 
-        reRender.call(this, varName, element);
+        this.reRender(varName, element);
 
         //clear();
         return this;
     }
-}
 
-function searchFilters() {
-    let self = this;
-    let queryFilters = document.querySelectorAll('[data-filter]');
-    let queryRepeat = '';
-    let len = queryFilters.length;
+    /**
+     * Repitado de los datos
+     * @private
+     * @method
+     */
+    reRender(varName, element) {
+        let elements = this._originalElements;
+        let elementHTML = '';
+        let repeatData = null;
+        let i;
+        let len = elements.length;
+        let elementData;
+        let elementsRepeatContent = document.createDocumentFragment();
 
-    if (len <= 0) return;
+        let funcBackArgs = [];
+        let modelData = this._scope[varName];
 
-    let i;
-    let filters;
-    let element = null;
+        for (i = 0; i < len; i++) {
+            elementData = elements[i];
 
-    for (i = 0; (element = queryFilters[i]); i++) {
-        queryRepeat = element.dataset[self.REPEAT_ATTR_NAME].split(
-            patterns.splitQuery
-        );
+            if (element)
+                if (
+                    element.dataset.filter !==
+                    elementData.element.dataset.filter
+                )
+                    continue;
 
-        filters = element.dataset.filter.split(patterns.splitQueryVars);
+            repeatData = resolveQuery.call(
+                this,
+                elementData.element.dataset[this.REPEAT_ATTR_NAME]
+            );
 
-        filters.forEach(function(filter) {
-            self.filter(queryRepeat[1], filter, element);
-        });
-    }
-}
+            if (!repeatData.datas || varName !== repeatData.varName) continue;
 
-/**
- * Repitado de los datos
- * @private
- * @method
- */
-function reRender(varName, element) {
-    let self = this;
-    let elements = self._originalElements;
-    let elementHTML = '';
-    let repeatData = null;
-    let i;
-    let len = elements.length;
-    let elementData;
-    let elementsRepeatContent = document.createDocumentFragment();
+            elementHTML = elementData.element.innerHTML;
 
-    let funcBackArgs = [];
-    let modelData = self._scope[varName];
+            elementData.childs.forEach(function(child, index) {
+                if (index === 0) return;
+                elementData.parentElement.removeChild(child);
+            });
+            elementData.childs.splice(1, elementData.childs.length);
 
-    for (i = 0; i < len; i++) {
-        elementData = elements[i];
+            repeatData.datas.forEach(function(data) {
+                let objData = {};
+                //No se necesita clonar el contenido ya que este sera reescrito
+                let elementCloned = elementData.elementClone.cloneNode(false);
 
-        if (element)
-            if (element.dataset.filter !== elementData.element.dataset.filter)
-                continue;
+                objData[repeatData.varsIterate] = data;
+                elementCloned.innerHTML = renderTemplate(elementHTML, objData);
 
-        repeatData = resolveQuery.call(
-            self,
-            elementData.element.dataset[self.REPEAT_ATTR_NAME]
-        );
+                elementsRepeatContent.appendChild(elementCloned);
+                elementData.childs.push(elementCloned);
 
-        if (!repeatData.datas || varName !== repeatData.varName) continue;
+                if (modelData.funcBack)
+                    funcBackArgs.push([data, elementCloned]);
+            });
 
-        elementHTML = elementData.element.innerHTML;
+            insertAfter(elementsRepeatContent, elementData.childs[0]);
+            elementsRepeatContent = document.createDocumentFragment();
+        }
 
-        elementData.childs.forEach(function(child, index) {
-            if (index === 0) return;
-            elementData.parentElement.removeChild(child);
-        });
-        elementData.childs.splice(1, elementData.childs.length);
-
-        repeatData.datas.forEach(function(data) {
-            let objData = {};
-            //No se necesita clonar el contenido ya que este sera reescrito
-            let elementCloned = elementData.elementClone.cloneNode(false);
-
-            objData[repeatData.varsIterate] = data;
-            elementCloned.innerHTML = renderTemplate(elementHTML, objData);
-
-            elementsRepeatContent.appendChild(elementCloned);
-            elementData.childs.push(elementCloned);
-
-            if (modelData.funcBack) funcBackArgs.push([data, elementCloned]);
-        });
-
-        insertAfter(elementsRepeatContent, elementData.childs[0]);
-        elementsRepeatContent = document.createDocumentFragment();
-    }
-
-    if (!!varName && modelData.funcBack) {
-        funcBackArgs.forEach(function(args) {
-            modelData.funcBack.apply(self, args);
-        });
+        if (!!varName && modelData.funcBack) {
+            funcBackArgs.forEach(args => {
+                modelData.funcBack.apply(this, args);
+            });
+        }
     }
 }
 
@@ -315,7 +314,6 @@ function reRender(varName, element) {
 function init(isRefresh, findParents) {
     let selector = '[data-' + this.REPEAT_ATTR_NAME + ']';
 
-    let self = this;
     let elements = document.querySelectorAll(
         selector + (findParents ? '' : ' ' + selector)
     );
@@ -327,16 +325,16 @@ function init(isRefresh, findParents) {
     let lenElements = 0;
     let elementsRepeatContent = document.createDocumentFragment();
 
-    if (!self._originalElements) {
-        self._originalElements = [];
+    if (!this._originalElements) {
+        this._originalElements = [];
     }
 
     for (i = 0, len = elements.length; i < len; i++) {
         element = elements[i].element || elements[i];
 
         repeatData = resolveQuery.call(
-            self,
-            element.dataset[self.REPEAT_ATTR_NAME]
+            this,
+            element.dataset[this.REPEAT_ATTR_NAME]
         );
 
         if (repeatData.datas) {
@@ -345,29 +343,29 @@ function init(isRefresh, findParents) {
             let elementCopy = element.cloneNode(true),
                 commentStart = document.createComment(
                     'RepeatHTML: start( ' +
-                        element.dataset[self.REPEAT_ATTR_NAME] +
+                        element.dataset[this.REPEAT_ATTR_NAME] +
                         ' )'
                 );
 
-            elementCopy.removeAttribute('data-' + self.REPEAT_ATTR_NAME);
+            elementCopy.removeAttribute('data-' + this.REPEAT_ATTR_NAME);
             elementCopy.removeAttribute('data-filter');
 
             if (!isRefresh) {
                 //Almacenar cada elemento original en una arreglo
-                self._originalElements.push({
+                this._originalElements.push({
                     element: element.cloneNode(true),
                     elementClone: elementCopy,
                     parentElement: element.parentElement,
                     childs: [commentStart]
                 });
 
-                lenElements = self._originalElements.length;
+                lenElements = this._originalElements.length;
             }
 
             elementsRepeatContent.appendChild(commentStart);
 
             //Comentario delimitador de inicio
-            repeatData.datas.forEach(function(data) {
+            repeatData.datas.forEach(data => {
                 let objData = {};
                 let elementCloned = elementCopy.cloneNode(false);
 
@@ -378,20 +376,19 @@ function init(isRefresh, findParents) {
                 elementsRepeatContent.appendChild(elementCloned);
 
                 if (!isRefresh) {
-                    self._originalElements[lenElements - 1].childs.push(
+                    this._originalElements[lenElements - 1].childs.push(
                         elementCloned
                     );
                 }
             });
 
             element.parentElement.replaceChild(elementsRepeatContent, element);
-
             elementsRepeatContent = document.createDocumentFragment();
         }
     }
 
     if (document.querySelectorAll(selector).length > 0 && !findParents) {
-        return init.call(self, isRefresh, true);
+        return init.call(this, isRefresh, true);
     }
 }
 
@@ -435,8 +432,11 @@ function renderTemplate(template, datas) {
                 finder = finder[partsKey[idx]];
             }
 
-            if (finder) return finder;
-            else return find;
+            if (finder) {
+                return finder;
+            }
+
+            return find;
         });
 }
 
