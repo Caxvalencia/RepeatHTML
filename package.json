@@ -1,0 +1,25 @@
+{
+  "name": "repeat-html-js",
+  "version": "0.0.1",
+  "description": "Repeat HTML elements",
+  "main": "index.js",
+  "scripts": {
+    "test": "tsc && mocha build/tests/*Test.js",
+    "watch": "mocha-typescript-watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chai": "^3.5.2",
+    "@types/mocha": "^2.2.44",
+    "@types/sinon": "^2.2.1",
+    "chai": "^3.5.0",
+    "mocha": "^3.3.0",
+    "mocha-typescript": "^1.1.2",
+    "sinon": "^2.2.0",
+    "source-map-support": "^0.4.15",
+    "typescript": "^2.3.2"
+  }
+}
