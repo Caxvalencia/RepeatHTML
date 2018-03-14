@@ -81,10 +81,12 @@
      * @method
      */
     RepeatHTML.prototype.filter = function(varName, filtro, element) {
-        if (varName === undefined) return false;
+        if (varName === undefined) {
+            return false;
+        }
 
-        var self = this,
-            _filter = null;
+        let self = this;
+        let _filter = null;
 
         filtro = filtro.trim();
 
@@ -139,6 +141,8 @@
             _filter = filtro.split(patterns.filters.like);
             filtro = _filter[1];
         }
+
+        //TODO WTF!?
         return;
 
         if (_filter) var prop = _filter[0];
@@ -147,12 +151,18 @@
             filtro = filtro.replace(/^%/g, '^');
 
             this._filters[varName] = function(data) {
-                var patron = new RegExp(filtro, 'gi');
+                let patron = new RegExp(filtro, 'gi');
+
                 //Despues puede convertirse en array para multiple filtros
-                if (prop) return patron.test(data[prop]);
-                else
-                    for (var prop in data)
-                        if (patron.test(data[prop])) return true;
+                if (prop) {
+                    return patron.test(data[prop]);
+                }
+
+                for (let prop in data) {
+                    if (patron.test(data[prop])) {
+                        return true;
+                    }
+                }
             };
         }
 
@@ -219,17 +229,17 @@
      * @method
      */
     function reRender(varName, element) {
-        var self = this,
-            elements = self._originalElements,
-            elementHTML = '',
-            repeatData = null,
-            i,
-            len = elements.length,
-            elementData,
-            elementsRepeatContent = document.createDocumentFragment();
+        let self = this;
+        let elements = self._originalElements;
+        let elementHTML = '';
+        let repeatData = null;
+        let i;
+        let len = elements.length;
+        let elementData;
+        let elementsRepeatContent = document.createDocumentFragment();
 
-        var funcBackArgs = [],
-            modelData = self._scope[varName];
+        let funcBackArgs = [];
+        let modelData = self._scope[varName];
 
         for (i = 0; i < len; i++) {
             elementData = elements[i];
@@ -288,24 +298,27 @@
      * @method
      */
     function init(isRefresh, findParents) {
-        var selector = '[data-' + this.REPEAT_ATTR_NAME + ']';
+        let selector = '[data-' + this.REPEAT_ATTR_NAME + ']';
 
-        var self = this,
-            elements = document.querySelectorAll(
-                selector + (findParents ? '' : ' ' + selector)
-            ),
-            element = null,
-            elementHTML = '',
-            repeatData = null,
-            i,
-            len,
-            lenElements = 0,
-            elementsRepeatContent = document.createDocumentFragment();
+        let self = this;
+        let elements = document.querySelectorAll(
+            selector + (findParents ? '' : ' ' + selector)
+        );
+        let element = null;
+        let elementHTML = '';
+        let repeatData = null;
+        let i;
+        let len;
+        let lenElements = 0;
+        let elementsRepeatContent = document.createDocumentFragment();
 
-        if (!self._originalElements) self._originalElements = [];
+        if (!self._originalElements) {
+            self._originalElements = [];
+        }
 
         for (i = 0, len = elements.length; i < len; i++) {
             element = elements[i].element || elements[i];
+
             repeatData = resolveQuery.call(
                 self,
                 element.dataset[self.REPEAT_ATTR_NAME]
@@ -313,7 +326,8 @@
 
             if (repeatData.datas) {
                 elementHTML = element.innerHTML;
-                var elementCopy = element.cloneNode(true),
+
+                let elementCopy = element.cloneNode(true),
                     commentStart = document.createComment(
                         'RepeatHTML: start( ' +
                             element.dataset[self.REPEAT_ATTR_NAME] +
@@ -339,32 +353,37 @@
 
                 //Comentario delimitador de inicio
                 repeatData.datas.forEach(function(data) {
-                    var objData = {},
-                        elementCloned = elementCopy.cloneNode(false);
+                    let objData = {};
+                    let elementCloned = elementCopy.cloneNode(false);
 
                     objData[repeatData.varsIterate] = data;
+
                     elementCloned.innerHTML = renderTemplate(
                         elementHTML,
                         objData
                     );
+
                     elementsRepeatContent.appendChild(elementCloned);
 
-                    if (!isRefresh)
+                    if (!isRefresh) {
                         self._originalElements[lenElements - 1].childs.push(
                             elementCloned
                         );
+                    }
                 });
 
                 element.parentElement.replaceChild(
                     elementsRepeatContent,
                     element
                 );
+                
                 elementsRepeatContent = document.createDocumentFragment();
             }
         }
 
-        if (document.querySelectorAll(selector).length > 0 && !findParents)
+        if (document.querySelectorAll(selector).length > 0 && !findParents) {
             return init.call(self, isRefresh, true);
+        }
     }
 
     /**
