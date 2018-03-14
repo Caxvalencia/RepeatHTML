@@ -4,6 +4,7 @@
   "description": "Repeat HTML elements",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "test": "tsc && mocha build/tests/*Test.js",
     "watch": "mocha-typescript-watch"
   },
@@ -20,6 +21,6 @@
     "mocha-typescript": "^1.1.2",
     "sinon": "^2.2.0",
     "source-map-support": "^0.4.15",
-    "typescript": "^2.3.2"
+    "typescript": "^2.7.2"
   }
 }
