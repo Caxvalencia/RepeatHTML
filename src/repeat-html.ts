@@ -6,7 +6,7 @@ declare let document;
  * @constructor RepeatHTML
  * @param {Object} config - Configuracion inicial para la instancia
  */
-export class RepeatHTML {
+export class RepeatHtml {
     _originalElements: any;
     _scope: any;
     _filters: {};
