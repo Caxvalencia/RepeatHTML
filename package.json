@@ -4,7 +4,8 @@
   "description": "Repeat HTML elements",
   "main": "index.js",
   "scripts": {
-    "start": "webpack --config webpack.config.js",
+    "build": "WEBPACK_ENV=build webpack --config webpack.config.js",
+    "dev": "WEBPACK_ENV=development webpack --config webpack.config.js --watch",
     "watch": "mocha-typescript-watch"
   },
   "keywords": [],
