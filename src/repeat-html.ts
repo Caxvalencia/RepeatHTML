@@ -34,7 +34,7 @@ export class RepeatHtml {
      * @param {Object[]} data - Informacion o datos a almacenar
      * @param {Object|Function|Array} funcBacks - Funciones que se ejecutaran al actualizar el modelo de datos
      */
-    scope(varName, data, funcBacks?) {
+    scope(varName: string, data, funcBacks?) {
         if (typeof varName !== 'string') {
             return this;
         }
@@ -47,9 +47,9 @@ export class RepeatHtml {
         this._scope[varName].data = data;
         this._scope[varName].originalData = data;
 
-        if (typeof funcBacks === 'function')
+        if (typeof funcBacks === 'function') {
             this._scope[varName].funcBackAfter = funcBacks;
-        else if (isOfType(funcBacks, 'array')) {
+        } else if (isOfType(funcBacks, 'array')) {
             this._scope[varName].funcBackAfter = funcBacks[0];
             this._scope[varName].funcBack = funcBacks[1];
         } else if (typeof funcBacks === 'object') {
@@ -67,104 +67,70 @@ export class RepeatHtml {
     }
 
     /**
-     * Filtrar la lista de datos dependiendo del parametro dado
-     * @public
-     * @method
+     * @param {any} varName
+     * @param {any} filtro
+     * @param {any} element
+     * @returns
      */
     filter(varName, filtro, element) {
         if (varName === undefined) {
             return false;
         }
 
-        let self = this;
-        let _filter = null;
-
         filtro = filtro.trim();
 
         if (
-            patterns.filters.as.test(filtro) ||
-            patterns.hasSelectorCss.test(filtro.replace(/^%|%$/g, ''))
+            !patterns.filters.as.test(filtro) &&
+            !patterns.hasSelectorCss.test(filtro.replace(/^%|%$/g, ''))
         ) {
-            _filter = filtro.split(patterns.filters.as);
-
-            let prop = _filter[0];
-            let selector = _filter[1];
-
-            if (!selector) {
-                selector = prop;
-                prop = null;
-            }
-
-            let elem = document.getElementById(
-                selector.replace(/#|^%|%$/g, '')
-            );
-
-            if (!elem) {
-                return self;
-            }
-
-            let hasPercentIni = /^%/g.test(selector) ? '^' : '';
-            let hasPercentFin = /%$/g.test(selector) ? '$' : '';
-
-            filtro = elem.value; //para llamarlo una primera vez
-
-            elem.addEventListener('keyup', function() {
-                let _this = this;
-
-                self._scope[varName].data = self._scope[
-                    varName
-                ].originalData.filter(function(data) {
-                    let patron = new RegExp(
-                        hasPercentIni + _this.value + hasPercentFin,
-                        'gi'
-                    );
-
-                    if (prop) {
-                        return patron.test(data[prop]);
-                    }
-
-                    for (const _prop in data) {
-                        if (patron.test(data[_prop])) {
-                            return true;
-                        }
-                    }
-                });
-
-                self.refresh(varName, element);
-            });
-
-            return self;
-        } else if (patterns.filters.like.test(filtro)) {
-            return; //Ignoremos el resto por el momento
-            // _filter = filtro.split(patterns.filters.like);
-            // filtro = _filter[1];
+            return;
         }
 
-        //TODO WTF!?
-        return;
+        let _filter = filtro.split(patterns.filters.as);
 
-        // if (_filter) var prop = _filter[0];
+        let prop = _filter[0];
+        let selector = _filter[1];
 
-        // if (filtro) {
-        //     filtro = filtro.replace(/^%/g, '^');
+        if (!selector) {
+            selector = prop;
+            prop = null;
+        }
 
-        //     this._filters[varName] = function(data) {
-        //         let patron = new RegExp(filtro, 'gi');
+        let elem = document.getElementById(selector.replace(/#|^%|%$/g, ''));
 
-        //         //Despues puede convertirse en array para multiple filtros
-        //         if (prop) {
-        //             return patron.test(data[prop]);
-        //         }
+        if (!elem) {
+            return this;
+        }
 
-        //         for (let prop in data) {
-        //             if (patron.test(data[prop])) {
-        //                 return true;
-        //             }
-        //         }
-        //     };
-        // }
+        let hasPercentIni = /^%/g.test(selector) ? '^' : '';
+        let hasPercentFin = /%$/g.test(selector) ? '$' : '';
 
-        // return this;
+        filtro = elem.value;
+
+        elem.addEventListener('keyup', () => {
+            let scopeVariable = this._scope[varName];
+
+            scopeVariable.data = scopeVariable.originalData.filter(data => {
+                let pattern = new RegExp(
+                    hasPercentIni + filtro + hasPercentFin,
+                    'gi'
+                );
+
+                if (prop) {
+                    return pattern.test(data[prop]);
+                }
+
+                for (const _prop in data) {
+                    if (pattern.test(data[_prop])) {
+                        return true;
+                    }
+                }
+            });
+
+            this.refresh(varName, element);
+        });
+
+        return self;
     }
 
     searchFilters() {
