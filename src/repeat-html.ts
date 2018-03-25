@@ -1,4 +1,4 @@
-import { patterns } from "./patterns";
+import { patterns } from './patterns';
 
 declare let document;
 
