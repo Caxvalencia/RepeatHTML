@@ -153,8 +153,9 @@ export class RepeatHtml {
      * @method
      */
     applyFilter(varName) {
-        if (!varName || !this._filters[varName])
+        if (!varName || !this._filters[varName]) {
             return this._scope[varName].data;
+        }
 
         return this._scope[varName].data.filter(this._filters[varName]);
     }
@@ -212,19 +213,21 @@ export class RepeatHtml {
         for (i = 0; i < len; i++) {
             elementData = elements[i];
 
-            if (element)
-                if (
-                    element.dataset.filter !==
-                    elementData.element.dataset.filter
-                )
-                    continue;
+            if (
+                element &&
+                element.dataset.filter !== elementData.element.dataset.filter
+            ) {
+                continue;
+            }
 
             repeatData = this.resolveQuery.call(
                 this,
                 elementData.element.dataset[this.REPEAT_ATTR_NAME]
             );
 
-            if (!repeatData.datas || varName !== repeatData.varName) continue;
+            if (!repeatData.datas || varName !== repeatData.varName) {
+                continue;
+            }
 
             elementHTML = elementData.element.innerHTML;
 
