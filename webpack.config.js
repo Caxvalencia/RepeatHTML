@@ -1,6 +1,6 @@
 const path = require('path');
 
-module.exports = {
+let defaultConfig = {
     entry: './src/index.ts',
     devtool: 'inline-source-map',
     module: {
@@ -22,3 +22,14 @@ module.exports = {
         umdNamedDefine: true
     }
 };
+
+let demoConfig = Object.assign({}, defaultConfig, {
+    output: {
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, 'demo/dist'),
+        libraryTarget: 'umd',
+        umdNamedDefine: true
+    }
+});
+
+module.exports = [defaultConfig, demoConfig];
