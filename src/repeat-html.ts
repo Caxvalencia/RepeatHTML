@@ -220,8 +220,7 @@ export class RepeatHtml {
                 continue;
             }
 
-            repeatData = this.resolveQuery.call(
-                this,
+            repeatData = this.resolveQuery(
                 elementData.element.dataset[this.REPEAT_ATTR_NAME]
             );
 
@@ -231,25 +230,29 @@ export class RepeatHtml {
 
             elementHTML = elementData.element.innerHTML;
 
-            elementData.childs.forEach(function(child, index) {
-                if (index === 0) return;
+            elementData.childs.forEach((child, index) => {
+                if (index === 0) {
+                    return;
+                }
+
                 elementData.parentElement.removeChild(child);
             });
+
             elementData.childs.splice(1, elementData.childs.length);
 
-            repeatData.datas.forEach(function(data) {
-                let objData = {};
-                //No se necesita clonar el contenido ya que este sera reescrito
-                let elementCloned = elementData.elementClone.cloneNode(false);
+            repeatData.datas.forEach(data => {
+                let elementClon = elementData.elementClone.cloneNode(false);
 
-                objData[repeatData.varsIterate] = data;
-                elementCloned.innerHTML = renderTemplate(elementHTML, objData);
+                elementClon.innerHTML = renderTemplate(elementHTML, {
+                    [repeatData.varsIterate]: data
+                });
 
-                elementsRepeatContent.appendChild(elementCloned);
-                elementData.childs.push(elementCloned);
+                elementsRepeatContent.appendChild(elementClon);
+                elementData.childs.push(elementClon);
 
-                if (modelData.funcBack)
-                    funcBackArgs.push([data, elementCloned]);
+                if (modelData.funcBack) {
+                    funcBackArgs.push([data, elementClon]);
+                }
             });
 
             insertAfter(elementsRepeatContent, elementData.childs[0]);
@@ -288,8 +291,7 @@ export class RepeatHtml {
         for (i = 0, len = elements.length; i < len; i++) {
             element = elements[i].element || elements[i];
 
-            repeatData = this.resolveQuery.call(
-                this,
+            repeatData = this.resolveQuery(
                 element.dataset[this.REPEAT_ATTR_NAME]
             );
 
@@ -398,12 +400,12 @@ export class RepeatHtml {
  * @private
  * @method
  */
-function renderTemplate(template, datas) {
+function renderTemplate(template, data) {
     return template
         .replace(patterns.keyTypeArray, '.$1')
-        .replace(patterns.findTemplateVars, function(find, key) {
+        .replace(patterns.findTemplateVars, (find, key) => {
             let partsKey = key.split('.');
-            let finder = datas[partsKey[0]];
+            let finder = data[partsKey[0]];
             let idx;
 
             for (idx = 1; idx < partsKey.length; idx++) {
@@ -424,9 +426,10 @@ function renderTemplate(template, datas) {
 function insertAfter(insertElement, element) {
     if (element.nextSibling) {
         element.parentNode.insertBefore(insertElement, element.nextSibling);
-    } else {
-        element.parentNode.appendChild(insertElement);
+        return;
     }
+
+    element.parentNode.appendChild(insertElement);
 }
 
 function isOfType(data, compare) {
