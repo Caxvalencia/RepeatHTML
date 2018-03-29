@@ -1,4 +1,4 @@
-import { patterns } from "./patterns";
+import { patterns } from './patterns';
 
 declare let document;
 
@@ -76,95 +76,61 @@ export class RepeatHtml {
             return false;
         }
 
-        let self = this;
-        let _filter = null;
-
         filtro = filtro.trim();
 
         if (
-            patterns.filters.as.test(filtro) ||
-            patterns.hasSelectorCss.test(filtro.replace(/^%|%$/g, ''))
+            !patterns.filters.as.test(filtro) &&
+            !patterns.hasSelectorCss.test(filtro.replace(/^%|%$/g, ''))
         ) {
-            _filter = filtro.split(patterns.filters.as);
+            return false;
+        }
+        let _filter = filtro.split(patterns.filters.as);
 
-            let prop = _filter[0];
-            let selector = _filter[1];
+        let prop = _filter[0];
+        let selector = _filter[1];
 
-            if (!selector) {
-                selector = prop;
-                prop = null;
-            }
-
-            let elem = document.getElementById(
-                selector.replace(/#|^%|%$/g, '')
-            );
-
-            if (!elem) {
-                return self;
-            }
-
-            let hasPercentIni = /^%/g.test(selector) ? '^' : '';
-            let hasPercentFin = /%$/g.test(selector) ? '$' : '';
-
-            filtro = elem.value; //para llamarlo una primera vez
-
-            elem.addEventListener('keyup', function() {
-                let _this = this;
-
-                self._scope[varName].data = self._scope[
-                    varName
-                ].originalData.filter(function(data) {
-                    let patron = new RegExp(
-                        hasPercentIni + _this.value + hasPercentFin,
-                        'gi'
-                    );
-
-                    if (prop) {
-                        return patron.test(data[prop]);
-                    }
-
-                    for (const _prop in data) {
-                        if (patron.test(data[_prop])) {
-                            return true;
-                        }
-                    }
-                });
-
-                self.refresh(varName, element);
-            });
-
-            return self;
-        } else if (patterns.filters.like.test(filtro)) {
-            return; //Ignoremos el resto por el momento
-            // _filter = filtro.split(patterns.filters.like);
-            // filtro = _filter[1];
+        if (!selector) {
+            selector = prop;
+            prop = null;
         }
 
-        //TODO WTF!?
-        return;
+        let elem = document.getElementById(selector.replace(/#|^%|%$/g, ''));
 
-        // if (_filter) var prop = _filter[0];
+        if (!elem) {
+            return this;
+        }
 
-        // if (filtro) {
-        //     filtro = filtro.replace(/^%/g, '^');
+        let hasPercentIni = /^%/g.test(selector) ? '^' : '';
+        let hasPercentFin = /%$/g.test(selector) ? '$' : '';
 
-        //     this._filters[varName] = function(data) {
-        //         let patron = new RegExp(filtro, 'gi');
+        filtro = elem.value; //para llamarlo una primera vez
 
-        //         //Despues puede convertirse en array para multiple filtros
-        //         if (prop) {
-        //             return patron.test(data[prop]);
-        //         }
+        elem.addEventListener('keyup', event => {
+            let value = event.target.value;
 
-        //         for (let prop in data) {
-        //             if (patron.test(data[prop])) {
-        //                 return true;
-        //             }
-        //         }
-        //     };
-        // }
+            this._scope[varName].data = this._scope[
+                varName
+            ].originalData.filter(function(data) {
+                let patron = new RegExp(
+                    hasPercentIni + value + hasPercentFin,
+                    'gi'
+                );
 
-        // return this;
+                if (prop) {
+                    return patron.test(data[prop]);
+                }
+
+                for (const _prop in data) {
+                    if (patron.test(data[_prop])) {
+                        return true;
+                    }
+                }
+            });
+
+            this.refresh(varName, element);
+        });
+
+        return this;
     }
 
     searchFilters() {
