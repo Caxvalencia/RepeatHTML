@@ -2,12 +2,14 @@
     "compilerOptions": {
         "outDir": "./dist/",
         "noImplicitAny": false,
+        "noImplicitThis": true,
+        "noUnusedParameters": true,
+        "noUnusedLocals": true,
         "sourceMap": true,
         "module": "es6",
-        "lib": [
-            "es2016",
-            "dom"
-        ],
+        "lib": ["es2016", "dom"],
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
         "target": "es5",
         "jsx": "react",
         "allowJs": true
