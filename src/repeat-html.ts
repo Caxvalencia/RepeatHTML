@@ -21,7 +21,7 @@ export class RepeatHtml {
         this.searchFilters();
 
         if (config.compile || config.compile === undefined) {
-            init.call(this, false, false);
+            this.init(false, false);
         }
     }
 
@@ -183,7 +183,7 @@ export class RepeatHtml {
                 .length > 0;
 
         if (hasDataRepeatAttribute) {
-            init.call(this, false, false);
+            this.init(false, false);
         }
 
         this.reRender(varName, element);
@@ -219,7 +219,7 @@ export class RepeatHtml {
                 )
                     continue;
 
-            repeatData = resolveQuery.call(
+            repeatData = this.resolveQuery.call(
                 this,
                 elementData.element.dataset[this.REPEAT_ATTR_NAME]
             );
@@ -259,115 +259,135 @@ export class RepeatHtml {
             });
         }
     }
-}
 
-/**
- * Metodo de entrada o salida del scope
- * @private
- * @method
- */
-function init(isRefresh, findParents) {
-    let selector = '[data-' + this.REPEAT_ATTR_NAME + ']';
+    /**
+     * Metodo de entrada o salida del scope
+     * @private
+     * @method
+     */
+    init(isRefresh, findParents) {
+        let selector = '[data-' + this.REPEAT_ATTR_NAME + ']';
 
-    let elements = document.querySelectorAll(
-        selector + (findParents ? '' : ' ' + selector)
-    );
-    let element = null;
-    let repeatData = null;
-    let i;
-    let len;
-    let lenElements = 0;
-    let elementsRepeatContent = document.createDocumentFragment();
-
-    if (!this._originalElements) {
-        this._originalElements = [];
-    }
-
-    for (i = 0, len = elements.length; i < len; i++) {
-        element = elements[i].element || elements[i];
-
-        repeatData = resolveQuery.call(
-            this,
-            element.dataset[this.REPEAT_ATTR_NAME]
+        let elements = document.querySelectorAll(
+            selector + (findParents ? '' : ' ' + selector)
         );
+        let element = null;
+        let repeatData = null;
+        let i;
+        let len;
+        let lenElements = 0;
+        let elementsRepeatContent = document.createDocumentFragment();
 
-        if (!repeatData.datas) {
-            continue;
+        if (!this._originalElements) {
+            this._originalElements = [];
         }
 
-        let elementHtml = element.innerHTML;
+        for (i = 0, len = elements.length; i < len; i++) {
+            element = elements[i].element || elements[i];
 
-        let elementCopy = element.cloneNode(true),
-            commentStart = document.createComment(
-                'RepeatHTML: start( ' +
-                    element.dataset[this.REPEAT_ATTR_NAME] +
-                    ' )'
+            repeatData = this.resolveQuery.call(
+                this,
+                element.dataset[this.REPEAT_ATTR_NAME]
             );
 
-        elementCopy.removeAttribute('data-' + this.REPEAT_ATTR_NAME);
-        elementCopy.removeAttribute('data-filter');
+            if (!repeatData.datas) {
+                continue;
+            }
 
-        if (!isRefresh) {
-            //Almacenar cada elemento original en una arreglo
-            this._originalElements.push({
-                element: element.cloneNode(true),
-                elementClone: elementCopy,
-                parentElement: element.parentElement,
-                childs: [commentStart]
-            });
+            let elementHtml = element.innerHTML;
 
-            lenElements = this._originalElements.length;
-        }
+            let elementCopy = element.cloneNode(true),
+                commentStart = document.createComment(
+                    'RepeatHTML: start( ' +
+                        element.dataset[this.REPEAT_ATTR_NAME] +
+                        ' )'
+                );
 
-        elementsRepeatContent.appendChild(commentStart);
-
-        //Comentario delimitador de inicio
-        repeatData.datas.forEach(data => {
-            let elementCloned = elementCopy.cloneNode(false);
-
-            elementCloned.innerHTML = renderTemplate(elementHtml, {
-                [repeatData.varsIterate]: data
-            });
-
-            elementsRepeatContent.appendChild(elementCloned);
+            elementCopy.removeAttribute('data-' + this.REPEAT_ATTR_NAME);
+            elementCopy.removeAttribute('data-filter');
 
             if (!isRefresh) {
-                this._originalElements[lenElements - 1].childs.push(
-                    elementCloned
-                );
+                //Almacenar cada elemento original en una arreglo
+                this._originalElements.push({
+                    element: element.cloneNode(true),
+                    elementClone: elementCopy,
+                    parentElement: element.parentElement,
+                    childs: [commentStart]
+                });
+
+                lenElements = this._originalElements.length;
             }
-        });
 
-        element.parentElement.replaceChild(elementsRepeatContent, element);
-        elementsRepeatContent = document.createDocumentFragment();
+            elementsRepeatContent.appendChild(commentStart);
+
+            //Comentario delimitador de inicio
+            repeatData.datas.forEach(data => {
+                let elementCloned = elementCopy.cloneNode(false);
+
+                elementCloned.innerHTML = renderTemplate(elementHtml, {
+                    [repeatData.varsIterate]: data
+                });
+
+                elementsRepeatContent.appendChild(elementCloned);
+
+                if (!isRefresh) {
+                    this._originalElements[lenElements - 1].childs.push(
+                        elementCloned
+                    );
+                }
+            });
+
+            element.parentElement.replaceChild(elementsRepeatContent, element);
+            elementsRepeatContent = document.createDocumentFragment();
+        }
+
+        if (document.querySelectorAll(selector).length > 0 && !findParents) {
+            return this.init(isRefresh, true);
+        }
     }
 
-    if (document.querySelectorAll(selector).length > 0 && !findParents) {
-        return init.call(this, isRefresh, true);
-    }
-}
+    /**
+     * Resuelve la cadena de texto del repeat a dos propiedades
+     * @private
+     * @method
+     */
+    resolveQuery(query) {
+        query = query.split(patterns.splitQuery);
 
-/**
- * Resuelve la cadena de texto del repeat a dos propiedades
- * @private
- * @method
- */
-function resolveQuery(query) {
-    query = query.split(patterns.splitQuery);
+        if (query[0].trim() === '' && !query[1]) {
+            return {
+                varsIterate: null,
+                datas: null,
+                varName: null
+            };
+        }
 
-    if (query[0].trim() === '' && !query[1]) {
         return {
-            varsIterate: null,
-            datas: null,
-            varName: null
+            varsIterate: query[0].split(patterns.splitQueryVars),
+            datas: this.parseData.call(this, query[1].trim()),
+            varName: query[1].trim()
         };
     }
 
-    return {
-        varsIterate: query[0].split(patterns.splitQueryVars),
-        datas: parseData.call(this, query[1].trim()),
-        varName: query[1].trim()
-    };
+    /**
+     * Codifica los datos de entrada dependiendo del tipo, array o string
+     * @private
+     * @method
+     */
+    parseData(strData) {
+        if (this._scope[strData]) {
+            return this.applyFilter(strData);
+        }
+
+        if (
+            patterns.isArraySintax.ini.test(strData) &&
+            patterns.isArraySintax.end.test(strData)
+        ) {
+            return eval(strData);
+        }
+
+        return null;
+    }
 }
 
 /**
@@ -393,23 +413,6 @@ function renderTemplate(template, datas) {
 
             return find;
         });
-}
-
-/**
- * Codifica los datos de entrada dependiendo del tipo, array o string
- * @private
- * @method
- */
-function parseData(strData) {
-    if (this._scope[strData]) return this.applyFilter(strData);
-
-    if (
-        patterns.isArraySintax.ini.test(strData) &&
-        patterns.isArraySintax.end.test(strData)
-    )
-        return eval(strData);
-
-    return null;
 }
 
 /**
