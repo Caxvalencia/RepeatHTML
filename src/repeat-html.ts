@@ -31,14 +31,10 @@ export class RepeatHtml {
      * @method
      *
      * @param {string} varName - Nombre del dato a almacenar dentro del scope
-     * @param {Object[]} data - Informacion o datos a almacenar
+     * @param {any[]} data - Informacion o datos a almacenar
      * @param {Object|Function|Array} funcBacks - Funciones que se ejecutaran al actualizar el modelo de datos
      */
     scope(varName: string, data, funcBacks?) {
-        if (typeof varName !== 'string') {
-            return this;
-        }
-
         if (data === undefined) {
             return this._scope[varName];
         }
@@ -85,7 +81,7 @@ export class RepeatHtml {
         ) {
             return false;
         }
-        
+
         let _filter = filtro.split(patterns.filters.as);
 
         let prop = _filter[0];
@@ -271,7 +267,6 @@ function init(isRefresh, findParents) {
         selector + (findParents ? '' : ' ' + selector)
     );
     let element = null;
-    let elementHTML = '';
     let repeatData = null;
     let i;
     let len;
@@ -290,54 +285,55 @@ function init(isRefresh, findParents) {
             element.dataset[this.REPEAT_ATTR_NAME]
         );
 
-        if (repeatData.datas) {
-            elementHTML = element.innerHTML;
+        if (!repeatData.datas) {
+            continue;
+        }
 
-            let elementCopy = element.cloneNode(true),
-                commentStart = document.createComment(
-                    'RepeatHTML: start( ' +
-                        element.dataset[this.REPEAT_ATTR_NAME] +
-                        ' )'
-                );
+        let elementHtml = element.innerHTML;
 
-            elementCopy.removeAttribute('data-' + this.REPEAT_ATTR_NAME);
-            elementCopy.removeAttribute('data-filter');
+        let elementCopy = element.cloneNode(true),
+            commentStart = document.createComment(
+                'RepeatHTML: start( ' +
+                    element.dataset[this.REPEAT_ATTR_NAME] +
+                    ' )'
+            );
 
-            if (!isRefresh) {
-                //Almacenar cada elemento original en una arreglo
-                this._originalElements.push({
-                    element: element.cloneNode(true),
-                    elementClone: elementCopy,
-                    parentElement: element.parentElement,
-                    childs: [commentStart]
-                });
+        elementCopy.removeAttribute('data-' + this.REPEAT_ATTR_NAME);
+        elementCopy.removeAttribute('data-filter');
 
-                lenElements = this._originalElements.length;
-            }
-
-            elementsRepeatContent.appendChild(commentStart);
-
-            //Comentario delimitador de inicio
-            repeatData.datas.forEach(data => {
-                let objData = {};
-                let elementCloned = elementCopy.cloneNode(false);
-
-                objData[repeatData.varsIterate] = data;
-
-                elementCloned.innerHTML = renderTemplate(elementHTML, objData);
-
-                elementsRepeatContent.appendChild(elementCloned);
-
-                if (!isRefresh) {
-                    this._originalElements[lenElements - 1].childs.push(
-                        elementCloned
-                    );
-                }
+        if (!isRefresh) {
+            //Almacenar cada elemento original en una arreglo
+            this._originalElements.push({
+                element: element.cloneNode(true),
+                elementClone: elementCopy,
+                parentElement: element.parentElement,
+                childs: [commentStart]
             });
 
-            element.parentElement.replaceChild(elementsRepeatContent, element);
-            elementsRepeatContent = document.createDocumentFragment();
+            lenElements = this._originalElements.length;
         }
+
+        elementsRepeatContent.appendChild(commentStart);
+
+        //Comentario delimitador de inicio
+        repeatData.datas.forEach(data => {
+            let elementCloned = elementCopy.cloneNode(false);
+
+            elementCloned.innerHTML = renderTemplate(elementHtml, {
+                [repeatData.varsIterate]: data
+            });
+
+            elementsRepeatContent.appendChild(elementCloned);
+
+            if (!isRefresh) {
+                this._originalElements[lenElements - 1].childs.push(
+                    elementCloned
+                );
+            }
+        });
+
+        element.parentElement.replaceChild(elementsRepeatContent, element);
+        elementsRepeatContent = document.createDocumentFragment();
     }
 
     if (document.querySelectorAll(selector).length > 0 && !findParents) {
