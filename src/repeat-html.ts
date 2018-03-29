@@ -34,7 +34,7 @@ export class RepeatHtml {
      * @param {Object[]} data - Informacion o datos a almacenar
      * @param {Object|Function|Array} funcBacks - Funciones que se ejecutaran al actualizar el modelo de datos
      */
-    scope(varName, data, funcBacks?) {
+    scope(varName: string, data, funcBacks?) {
         if (typeof varName !== 'string') {
             return this;
         }
@@ -47,9 +47,9 @@ export class RepeatHtml {
         this._scope[varName].data = data;
         this._scope[varName].originalData = data;
 
-        if (typeof funcBacks === 'function')
+        if (typeof funcBacks === 'function') {
             this._scope[varName].funcBackAfter = funcBacks;
-        else if (isOfType(funcBacks, 'array')) {
+        } else if (isOfType(funcBacks, 'array')) {
             this._scope[varName].funcBackAfter = funcBacks[0];
             this._scope[varName].funcBack = funcBacks[1];
         } else if (typeof funcBacks === 'object') {
@@ -67,9 +67,10 @@ export class RepeatHtml {
     }
 
     /**
-     * Filtrar la lista de datos dependiendo del parametro dado
-     * @public
-     * @method
+     * @param {any} varName
+     * @param {any} filtro
+     * @param {any} element
+     * @returns
      */
     filter(varName, filtro, element) {
         if (varName === undefined) {
@@ -84,6 +85,7 @@ export class RepeatHtml {
         ) {
             return false;
         }
+        
         let _filter = filtro.split(patterns.filters.as);
 
         let prop = _filter[0];
