@@ -9,7 +9,7 @@ declare let document;
 export class RepeatHtml {
     _originalElements: any;
     _scope: any;
-    _filters: {};
+    _filters;
     REPEAT_ATTR_NAME: any;
 
     constructor(config: any = {}) {
@@ -63,26 +63,19 @@ export class RepeatHtml {
     }
 
     /**
-     * @param {any} varName
-     * @param {any} filtro
+     * @param {any} variableName
+     * @param {any} filterValue
      * @param {any} element
      * @returns
      */
-    filter(varName, filtro, element) {
-        if (varName === undefined) {
+    filter(variableName: string, filterValue, element) {
+        filterValue = filterValue.trim();
+
+        if (this.validateFilter(variableName, filterValue)) {
             return false;
         }
 
-        filtro = filtro.trim();
-
-        if (
-            !patterns.filters.as.test(filtro) &&
-            !patterns.hasSelectorCss.test(filtro.replace(/^%|%$/g, ''))
-        ) {
-            return false;
-        }
-
-        let _filter = filtro.split(patterns.filters.as);
+        let _filter = filterValue.split(patterns.filters.as);
 
         let prop = _filter[0];
         let selector = _filter[1];
@@ -98,34 +91,34 @@ export class RepeatHtml {
             return this;
         }
 
-        let hasPercentIni = /^%/g.test(selector) ? '^' : '';
-        let hasPercentFin = /%$/g.test(selector) ? '$' : '';
+        let hasPercentInit = /^%/g.test(selector) ? '^' : '';
+        let hasPercentEnd = /%$/g.test(selector) ? '$' : '';
 
-        filtro = elem.value; //para llamarlo una primera vez
+        filterValue = elem.value; //para llamarlo una primera vez
 
         elem.addEventListener('keyup', event => {
             let value = event.target.value;
 
-            this._scope[varName].data = this._scope[
-                varName
+            this._scope[variableName].data = this._scope[
+                variableName
             ].originalData.filter(function(data) {
-                let patron = new RegExp(
-                    hasPercentIni + value + hasPercentFin,
+                let pattern = new RegExp(
+                    hasPercentInit + value + hasPercentEnd,
                     'gi'
                 );
 
                 if (prop) {
-                    return patron.test(data[prop]);
+                    return pattern.test(data[prop]);
                 }
 
                 for (const _prop in data) {
-                    if (patron.test(data[_prop])) {
+                    if (pattern.test(data[_prop])) {
                         return true;
                     }
                 }
             });
 
-            this.refresh(varName, element);
+            this.refresh(variableName, element);
         });
 
         return this;
@@ -164,6 +157,19 @@ export class RepeatHtml {
             return this._scope[varName].data;
 
         return this._scope[varName].data.filter(this._filters[varName]);
+    }
+
+    validateFilter(variableName: string, filterValue: string): boolean {
+        if (variableName === undefined) {
+            return false;
+        }
+
+        if (
+            !patterns.filters.as.test(filterValue) &&
+            !patterns.hasSelectorCss.test(filterValue.replace(/^%|%$/g, ''))
+        ) {
+            return false;
+        }
     }
 
     /**
