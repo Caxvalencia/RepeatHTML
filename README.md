@@ -2,7 +2,46 @@
 
 Librería Javascript que ayuda con la gestión de contenido dinámico y repetitivo para HTML
 
+```javascript
+let repeat = new RepeatHtml({
+    compile: false
+});
+
+repeat.scope(
+    'users',
+    [
+        {
+            name: 'user-1',
+            lastName: 'ape1'
+        },
+        {
+            name: 'user-2',
+            lastName: 'ape2'
+        },
+        {
+            name: 'user-3',
+            lastName: 'ape3'
+        }
+    ],
+    {
+        after: <refreshEventsUsers>,
+        funcBack: <refreshEventsUserItem>
+    }
+);
+```
+
+````html
+<ul>
+    <li data-repeat='user in users'>
+        <button id='{{ user.name }}'>
+            {{ user.name }} - {{ user.lastName }}
+        </button>
+    </li>
+</ul>
+```
+
 ```html
+<!-- With inline data -->
 <table border>
     <tr data-repeat='row in [1,2,3]'>
         <td data-repeat='col in [1,2,3]'>
@@ -10,7 +49,7 @@ Librería Javascript que ayuda con la gestión de contenido dinámico y repetiti
         </td>
     </tr>
 </table>
-```
+````
 
 Resultado
 
