@@ -1,4 +1,5 @@
 import { patterns } from './patterns';
+import { Filter } from './filter';
 
 declare let document;
 
@@ -18,7 +19,7 @@ export class RepeatHtml {
         this._scope = config.scope || {};
         this._originalElements = null;
 
-        this.searchFilters();
+        new Filter(this._scope, this.REPEAT_ATTR_NAME, this.refresh.bind(this));
 
         if (config.compile || config.compile === undefined) {
             this.init(false, false);
@@ -63,91 +64,6 @@ export class RepeatHtml {
     }
 
     /**
-     * @param {any} variableName
-     * @param {any} filterValue
-     * @param {any} element
-     * @returns
-     */
-    filter(variableName: string, filterValue, element) {
-        filterValue = filterValue.trim();
-
-        if (this.validateFilter(variableName, filterValue)) {
-            return false;
-        }
-
-        let _filter = filterValue.split(patterns.filters.as);
-
-        let prop = _filter[0];
-        let selector = _filter[1];
-
-        if (!selector) {
-            selector = prop;
-            prop = null;
-        }
-
-        let elem = document.getElementById(selector.replace(/#|^%|%$/g, ''));
-
-        if (!elem) {
-            return this;
-        }
-
-        let hasPercentInit = /^%/g.test(selector) ? '^' : '';
-        let hasPercentEnd = /%$/g.test(selector) ? '$' : '';
-
-        filterValue = elem.value; //para llamarlo una primera vez
-
-        elem.addEventListener('keyup', event => {
-            let value = event.target.value;
-
-            this._scope[variableName].data = this._scope[
-                variableName
-            ].originalData.filter(function(data) {
-                let pattern = new RegExp(
-                    hasPercentInit + value + hasPercentEnd,
-                    'gi'
-                );
-
-                if (prop) {
-                    return pattern.test(data[prop]);
-                }
-
-                for (const _prop in data) {
-                    if (pattern.test(data[_prop])) {
-                        return true;
-                    }
-                }
-            });
-
-            this.refresh(variableName, element);
-        });
-
-        return this;
-    }
-
-    searchFilters() {
-        let queryFilters = document.querySelectorAll('[data-filter]');
-
-        if (queryFilters.length <= 0) {
-            return;
-        }
-
-        let element = null;
-        let queryRepeat = '';
-
-        for (let i = 0; (element = queryFilters[i]); i++) {
-            queryRepeat = element.dataset[this.REPEAT_ATTR_NAME].split(
-                patterns.splitQuery
-            );
-
-            element.dataset.filter
-                .split(patterns.splitQueryVars)
-                .forEach(filter => {
-                    this.filter(queryRepeat[1], filter, element);
-                });
-        }
-    }
-
-    /**
      * Filtrar la lista de datos dependiendo del parametro dado
      * @public
      * @method
@@ -158,19 +74,6 @@ export class RepeatHtml {
         }
 
         return this._scope[varName].data.filter(this._filters[varName]);
-    }
-
-    validateFilter(variableName: string, filterValue: string): boolean {
-        if (variableName === undefined) {
-            return false;
-        }
-
-        if (
-            !patterns.filters.as.test(filterValue) &&
-            !patterns.hasSelectorCss.test(filterValue.replace(/^%|%$/g, ''))
-        ) {
-            return false;
-        }
     }
 
     /**
