@@ -11,15 +11,19 @@ export class RepeatHtml {
     _originalElements: any;
     _scope: any;
     _filters;
-    REPEAT_ATTR_NAME: any;
+    repeatAttributeName: string;
 
     constructor(config: any = {}) {
-        this.REPEAT_ATTR_NAME = config.attrName || 'repeat';
+        this.repeatAttributeName = config.attrName || 'repeat';
         this._filters = {};
         this._scope = config.scope || {};
         this._originalElements = null;
 
-        new Filter(this._scope, this.REPEAT_ATTR_NAME, this.refresh.bind(this));
+        new Filter(
+            this._scope,
+            this.repeatAttributeName,
+            this.refresh.bind(this)
+        );
 
         if (config.compile || config.compile === undefined) {
             this.init(false, false);
@@ -83,7 +87,7 @@ export class RepeatHtml {
      */
     refresh(varName, element?) {
         let hasDataRepeatAttribute =
-            document.querySelectorAll('[data-' + this.REPEAT_ATTR_NAME + ']')
+            document.querySelectorAll('[data-' + this.repeatAttributeName + ']')
                 .length > 0;
 
         if (hasDataRepeatAttribute) {
@@ -124,7 +128,7 @@ export class RepeatHtml {
             }
 
             repeatData = this.resolveQuery(
-                elementData.element.dataset[this.REPEAT_ATTR_NAME]
+                elementData.element.dataset[this.repeatAttributeName]
             );
 
             if (!repeatData.datas || varName !== repeatData.varName) {
@@ -175,7 +179,7 @@ export class RepeatHtml {
      * @method
      */
     init(isRefresh, findParents) {
-        let selector = '[data-' + this.REPEAT_ATTR_NAME + ']';
+        let selector = '[data-' + this.repeatAttributeName + ']';
 
         let elements = document.querySelectorAll(
             selector + (findParents ? '' : ' ' + selector)
@@ -195,7 +199,7 @@ export class RepeatHtml {
             element = elements[i].element || elements[i];
 
             repeatData = this.resolveQuery(
-                element.dataset[this.REPEAT_ATTR_NAME]
+                element.dataset[this.repeatAttributeName]
             );
 
             if (!repeatData.datas) {
@@ -207,11 +211,11 @@ export class RepeatHtml {
             let elementCopy = element.cloneNode(true),
                 commentStart = document.createComment(
                     'RepeatHTML: start( ' +
-                        element.dataset[this.REPEAT_ATTR_NAME] +
+                        element.dataset[this.repeatAttributeName] +
                         ' )'
                 );
 
-            elementCopy.removeAttribute('data-' + this.REPEAT_ATTR_NAME);
+            elementCopy.removeAttribute('data-' + this.repeatAttributeName);
             elementCopy.removeAttribute('data-filter');
 
             if (!isRefresh) {
