@@ -2,19 +2,17 @@ import { patterns } from './patterns';
 import { Filter } from './filter';
 import { Helpers } from './helpers';
 
-declare let document;
-
 export class RepeatHtml {
     filter: Filter;
-    _originalElements: any;
-    _scope: any;
+    originalElements: any[];
     repeatAttributeName: string;
     selector: string;
+    _scope: any;
 
     constructor(config: any = {}) {
         this.repeatAttributeName = config.attrName || 'repeat';
         this._scope = config.scope || {};
-        this._originalElements = null;
+        this.originalElements = null;
 
         this.filter = new Filter(
             this._scope,
@@ -91,7 +89,7 @@ export class RepeatHtml {
      * @method
      */
     reRender(varName, element) {
-        let elements = this._originalElements;
+        let elements = this.originalElements;
         let repeatData = null;
         let elementData;
         let elementsRepeatContent = document.createDocumentFragment();
@@ -166,15 +164,14 @@ export class RepeatHtml {
         );
         let element = null;
         let repeatData = null;
-        let len;
         let lenElements = 0;
         let elementsRepeatContent = document.createDocumentFragment();
 
-        if (!this._originalElements) {
-            this._originalElements = [];
+        if (!this.originalElements) {
+            this.originalElements = [];
         }
 
-        for (let i = 0, len = elements.length; i < len; i++) {
+        for (let i = 0; i < elements.length; i++) {
             element = elements[i].element || elements[i];
 
             repeatData = this.resolveQuery(
@@ -199,14 +196,14 @@ export class RepeatHtml {
 
             if (!isRefresh) {
                 //Almacenar cada elemento original en una arreglo
-                this._originalElements.push({
+                this.originalElements.push({
                     element: element.cloneNode(true),
                     elementClone: elementCopy,
                     parentElement: element.parentElement,
                     childs: [commentStart]
                 });
 
-                lenElements = this._originalElements.length;
+                lenElements = this.originalElements.length;
             }
 
             elementsRepeatContent.appendChild(commentStart);
@@ -222,7 +219,7 @@ export class RepeatHtml {
                 elementsRepeatContent.appendChild(elementCloned);
 
                 if (!isRefresh) {
-                    this._originalElements[lenElements - 1].childs.push(
+                    this.originalElements[lenElements - 1].childs.push(
                         elementCloned
                     );
                 }
