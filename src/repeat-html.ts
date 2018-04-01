@@ -94,17 +94,14 @@ export class RepeatHtml {
      */
     reRender(varName, element) {
         let elements = this._originalElements;
-        let elementHTML = '';
         let repeatData = null;
-        let i;
-        let len = elements.length;
         let elementData;
         let elementsRepeatContent = document.createDocumentFragment();
 
         let funcBackArgs = [];
         let modelData = this._scope[varName];
 
-        for (i = 0; i < len; i++) {
+        for (let i = 0; i < elements.length; i++) {
             elementData = elements[i];
 
             if (
@@ -122,7 +119,7 @@ export class RepeatHtml {
                 continue;
             }
 
-            elementHTML = elementData.element.innerHTML;
+            let elementHTML = elementData.element.innerHTML;
 
             elementData.childs.forEach((child, index) => {
                 if (index === 0) {

@@ -56,7 +56,7 @@ export class Filter {
         );
 
         if (!elem) {
-            return this;
+            return;
         }
 
         let hasPercentInit = /^%/g.test(selector) ? '^' : '';

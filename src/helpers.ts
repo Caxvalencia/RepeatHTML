@@ -12,9 +12,8 @@ export class Helpers {
             .replace(patterns.findTemplateVars, (find, key) => {
                 let partsKey = key.split('.');
                 let finder = data[partsKey[0]];
-                let idx;
 
-                for (idx = 1; idx < partsKey.length; idx++) {
+                for (let idx = 1; idx < partsKey.length; idx++) {
                     finder = finder[partsKey[idx]];
                 }
 
@@ -29,6 +28,7 @@ export class Helpers {
     static insertAfter(insertElement, element) {
         if (element.nextSibling) {
             element.parentNode.insertBefore(insertElement, element.nextSibling);
+
             return;
         }
 
