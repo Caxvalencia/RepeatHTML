@@ -1,5 +1,6 @@
 import { patterns } from './patterns';
 import { Filter } from './filter';
+import { Helpers } from './helpers';
 
 declare let document;
 
@@ -49,7 +50,7 @@ export class RepeatHtml {
 
         if (typeof funcBacks === 'function') {
             this._scope[varName].funcBackAfter = funcBacks;
-        } else if (isOfType(funcBacks, 'array')) {
+        } else if (Helpers.isOfType(funcBacks, 'array')) {
             this._scope[varName].funcBackAfter = funcBacks[0];
             this._scope[varName].funcBack = funcBacks[1];
         } else if (typeof funcBacks === 'object') {
@@ -136,7 +137,7 @@ export class RepeatHtml {
             repeatData.datas.forEach(data => {
                 let elementClon = elementData.elementClone.cloneNode(false);
 
-                elementClon.innerHTML = renderTemplate(elementHTML, {
+                elementClon.innerHTML = Helpers.renderTemplate(elementHTML, {
                     [repeatData.varsIterate]: data
                 });
 
@@ -148,7 +149,7 @@ export class RepeatHtml {
                 }
             });
 
-            insertAfter(elementsRepeatContent, elementData.childs[0]);
+            Helpers.insertAfter(elementsRepeatContent, elementData.childs[0]);
             elementsRepeatContent = document.createDocumentFragment();
         }
 
@@ -222,7 +223,7 @@ export class RepeatHtml {
             repeatData.datas.forEach(data => {
                 let elementCloned = elementCopy.cloneNode(false);
 
-                elementCloned.innerHTML = renderTemplate(elementHtml, {
+                elementCloned.innerHTML = Helpers.renderTemplate(elementHtml, {
                     [repeatData.varsIterate]: data
                 });
 
@@ -286,50 +287,4 @@ export class RepeatHtml {
 
         return null;
     }
-}
-
-/**
- * Injector de datos dentro de un template(cadena de texto)
- * @private
- * @method
- */
-function renderTemplate(template, data) {
-    return template
-        .replace(patterns.keyTypeArray, '.$1')
-        .replace(patterns.findTemplateVars, (find, key) => {
-            let partsKey = key.split('.');
-            let finder = data[partsKey[0]];
-            let idx;
-
-            for (idx = 1; idx < partsKey.length; idx++) {
-                finder = finder[partsKey[idx]];
-            }
-
-            if (finder) {
-                return finder;
-            }
-
-            return find;
-        });
-}
-
-/**
- * Utils
- */
-function insertAfter(insertElement, element) {
-    if (element.nextSibling) {
-        element.parentNode.insertBefore(insertElement, element.nextSibling);
-        return;
-    }
-
-    element.parentNode.appendChild(insertElement);
-}
-
-function isOfType(data, compare) {
-    return (
-        {}.toString
-            .call(data)
-            .match(/\s(.+)\]$/)[1]
-            .toLowerCase() === compare
-    );
 }
