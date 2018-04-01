@@ -1,23 +1,25 @@
 import { patterns } from './patterns';
 
 export class Filter {
-    protected REPEAT_ATTR_NAME: string;
+    protected repeatAttributeName: string;
 
     constructor(repeatAttributeName: string) {
-        this.REPEAT_ATTR_NAME = repeatAttributeName;
+        this.repeatAttributeName = repeatAttributeName;
+        this.findFilters();
+    }
 
+    private findFilters() {
         let queryFilters: NodeListOf<Element> = document.querySelectorAll(
             '[data-filter]'
         );
 
         let element: any;
-        let queryRepeat = '';
+        let queryRepeat: string;
 
         for (let i = 0; (element = queryFilters[i]); i++) {
-            queryRepeat = element.dataset[repeatAttributeName].split(
+            queryRepeat = element.dataset[this.repeatAttributeName].split(
                 patterns.splitQuery
             );
-
             element.dataset.filter
                 .split(patterns.splitQueryVars)
                 .forEach(filter => {
@@ -32,10 +34,10 @@ export class Filter {
      * @param {any} element
      * @returns
      */
-    filter(variableName: string, filterValue, element) {
+    filter(variableName: string, filterValue: string, element: HTMLElement) {
         filterValue = filterValue.trim();
 
-        if (this.validateFilter(variableName, filterValue)) {
+        if (this.validate(variableName, filterValue)) {
             return false;
         }
 
@@ -49,7 +51,9 @@ export class Filter {
             prop = null;
         }
 
-        let elem: any = document.getElementById(selector.replace(/#|^%|%$/g, ''));
+        let elem: any = document.getElementById(
+            selector.replace(/#|^%|%$/g, '')
+        );
 
         if (!elem) {
             return this;
@@ -65,7 +69,7 @@ export class Filter {
 
             this._scope[variableName].data = this._scope[
                 variableName
-            ].originalData.filter(function(data) {
+            ].originalData.filter(data => {
                 let pattern = new RegExp(
                     hasPercentInit + value + hasPercentEnd,
                     'gi'
@@ -88,7 +92,11 @@ export class Filter {
         return this;
     }
 
-    validateFilter(variableName: string, filterValue: string): boolean {
+    /**
+     * @param variableName
+     * @param filterValue
+     */
+    validate(variableName: string, filterValue: string): boolean {
         if (variableName === undefined) {
             return false;
         }
