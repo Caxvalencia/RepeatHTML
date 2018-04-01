@@ -8,18 +8,17 @@ declare let document;
  * @param {Object} config - Configuracion inicial para la instancia
  */
 export class RepeatHtml {
+    filter: Filter;
     _originalElements: any;
     _scope: any;
-    _filters;
     repeatAttributeName: string;
 
     constructor(config: any = {}) {
         this.repeatAttributeName = config.attrName || 'repeat';
-        this._filters = {};
         this._scope = config.scope || {};
         this._originalElements = null;
 
-        new Filter(
+        this.filter = new Filter(
             this._scope,
             this.repeatAttributeName,
             this.refresh.bind(this)
@@ -65,19 +64,6 @@ export class RepeatHtml {
         }
 
         return this;
-    }
-
-    /**
-     * Filtrar la lista de datos dependiendo del parametro dado
-     * @public
-     * @method
-     */
-    applyFilter(varName) {
-        if (!varName || !this._filters[varName]) {
-            return this._scope[varName].data;
-        }
-
-        return this._scope[varName].data.filter(this._filters[varName]);
     }
 
     /**
@@ -288,7 +274,7 @@ export class RepeatHtml {
      */
     parseData(strData) {
         if (this._scope[strData]) {
-            return this.applyFilter(strData);
+            return this.filter.apply(strData);
         }
 
         if (

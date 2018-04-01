@@ -4,12 +4,28 @@ export class Filter {
     protected callback: Function;
     protected scope: any;
     protected repeatAttributeName: string;
+    protected filters;
 
     constructor(scope, repeatAttributeName: string, callback) {
         this.scope = scope;
         this.repeatAttributeName = repeatAttributeName;
         this.callback = callback;
+        this.filters = {};
+
         this.findFilters();
+    }
+
+    /**
+     * Filtrar la lista de datos dependiendo del parametro dado
+     * @public
+     * @method
+     */
+    apply(varName) {
+        if (!varName || !this.filters[varName]) {
+            return this.scope[varName].data;
+        }
+
+        return this.scope[varName].data.filter(this.filters[varName]);
     }
 
     /**
