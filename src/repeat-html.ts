@@ -4,15 +4,12 @@ import { Helpers } from './helpers';
 
 declare let document;
 
-/**
- * @constructor RepeatHTML
- * @param {Object} config - Configuracion inicial para la instancia
- */
 export class RepeatHtml {
     filter: Filter;
     _originalElements: any;
     _scope: any;
     repeatAttributeName: string;
+    selector: string;
 
     constructor(config: any = {}) {
         this.repeatAttributeName = config.attrName || 'repeat';
@@ -24,6 +21,8 @@ export class RepeatHtml {
             this.repeatAttributeName,
             this.refresh.bind(this)
         );
+
+        this.selector = '[data-' + this.repeatAttributeName + ']';
 
         if (config.compile || config.compile === undefined) {
             this.init(false, false);
@@ -74,8 +73,7 @@ export class RepeatHtml {
      */
     refresh(varName, element?) {
         let hasDataRepeatAttribute =
-            document.querySelectorAll('[data-' + this.repeatAttributeName + ']')
-                .length > 0;
+            document.querySelectorAll(this.selector).length > 0;
 
         if (hasDataRepeatAttribute) {
             this.init(false, false);
@@ -163,14 +161,11 @@ export class RepeatHtml {
      * @method
      */
     init(isRefresh, findParents) {
-        let selector = '[data-' + this.repeatAttributeName + ']';
-
-        let elements = document.querySelectorAll(
-            selector + (findParents ? '' : ' ' + selector)
+        let elements: any = document.querySelectorAll(
+            this.selector + (findParents ? '' : ' ' + this.selector)
         );
         let element = null;
         let repeatData = null;
-        let i;
         let len;
         let lenElements = 0;
         let elementsRepeatContent = document.createDocumentFragment();
@@ -179,7 +174,7 @@ export class RepeatHtml {
             this._originalElements = [];
         }
 
-        for (i = 0, len = elements.length; i < len; i++) {
+        for (let i = 0, len = elements.length; i < len; i++) {
             element = elements[i].element || elements[i];
 
             repeatData = this.resolveQuery(
@@ -237,7 +232,10 @@ export class RepeatHtml {
             elementsRepeatContent = document.createDocumentFragment();
         }
 
-        if (document.querySelectorAll(selector).length > 0 && !findParents) {
+        if (
+            document.querySelectorAll(this.selector).length > 0 &&
+            !findParents
+        ) {
             return this.init(isRefresh, true);
         }
     }
