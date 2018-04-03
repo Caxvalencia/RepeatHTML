@@ -1,12 +1,13 @@
 import { patterns } from './patterns';
+import { Scope } from './scope';
 
 export class Filter {
     protected callback: Function;
-    protected scope: any;
+    protected scope: Scope;
     protected repeatAttributeName: string;
     protected filters;
 
-    constructor(scope, repeatAttributeName: string, callback) {
+    constructor(scope: Scope, repeatAttributeName: string, callback) {
         this.scope = scope;
         this.repeatAttributeName = repeatAttributeName;
         this.callback = callback;
@@ -22,10 +23,10 @@ export class Filter {
      */
     apply(varName) {
         if (!varName || !this.filters[varName]) {
-            return this.scope[varName].data;
+            return this.scope.get(varName).data;
         }
 
-        return this.scope[varName].data.filter(this.filters[varName]);
+        return this.scope.get(varName).data.filter(this.filters[varName]);
     }
 
     /**
@@ -67,24 +68,24 @@ export class Filter {
         elem.addEventListener('keyup', event => {
             let value = event.target.value;
 
-            this.scope[variableName].data = this.scope[
-                variableName
-            ].originalData.filter(data => {
-                let pattern = new RegExp(
-                    hasPercentInit + value + hasPercentEnd,
-                    'gi'
-                );
+            this.scope.get(variableName).data = this.scope
+                .get(variableName)
+                .originalData.filter(data => {
+                    let pattern = new RegExp(
+                        hasPercentInit + value + hasPercentEnd,
+                        'gi'
+                    );
 
-                if (prop) {
-                    return pattern.test(data[prop]);
-                }
-
-                for (const _prop in data) {
-                    if (pattern.test(data[_prop])) {
-                        return true;
+                    if (prop) {
+                        return pattern.test(data[prop]);
                     }
-                }
-            });
+
+                    for (const _prop in data) {
+                        if (pattern.test(data[_prop])) {
+                            return true;
+                        }
+                    }
+                });
 
             this.callback(variableName, element);
         });

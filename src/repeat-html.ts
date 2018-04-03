@@ -1,17 +1,18 @@
 import { patterns } from './patterns';
 import { Filter } from './filter';
 import { Helpers } from './helpers';
+import { Scope } from './scope';
 
 export class RepeatHtml {
     filter: Filter;
     originalElements: any[];
     repeatAttributeName: string;
     selector: string;
-    _scope: any;
+    _scope: Scope;
 
     constructor(config: any = {}) {
         this.repeatAttributeName = config.attrName || 'repeat';
-        this._scope = config.scope || {};
+        this._scope = new Scope(config.scope);
         this.originalElements = null;
 
         this.filter = new Filter(
@@ -38,28 +39,12 @@ export class RepeatHtml {
      */
     scope(varName: string, data, funcBacks?) {
         if (data === undefined) {
-            return this._scope[varName];
+            return this._scope.get(varName);
         }
 
-        this._scope[varName] = this._scope[varName] || {};
-        this._scope[varName].data = data;
-        this._scope[varName].originalData = data;
-
-        if (typeof funcBacks === 'function') {
-            this._scope[varName].funcBackAfter = funcBacks;
-        } else if (Helpers.isOfType(funcBacks, 'array')) {
-            this._scope[varName].funcBackAfter = funcBacks[0];
-            this._scope[varName].funcBack = funcBacks[1];
-        } else if (typeof funcBacks === 'object') {
-            this._scope[varName].funcBackAfter = funcBacks.after;
-            this._scope[varName].funcBack = funcBacks.funcBack;
-        }
-
+        this._scope.add(varName, data, funcBacks);
         this.refresh(varName);
-
-        if (this._scope[varName].funcBackAfter) {
-            this._scope[varName].funcBackAfter.call(this, data);
-        }
+        this._scope.get(varName).funcBackAfter.call(this, data);
 
         return this;
     }
@@ -95,7 +80,7 @@ export class RepeatHtml {
         let elementsRepeatContent = document.createDocumentFragment();
 
         let funcBackArgs = [];
-        let modelData = this._scope[varName];
+        let modelData = this._scope.get(varName);
 
         for (let i = 0; i < elements.length; i++) {
             elementData = elements[i];
@@ -266,7 +251,7 @@ export class RepeatHtml {
      * @method
      */
     parseData(strData) {
-        if (this._scope[strData]) {
+        if (this._scope.get(strData)) {
             return this.filter.apply(strData);
         }
 
