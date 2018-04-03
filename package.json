@@ -9,7 +9,7 @@
     "watch": "cross-env NODE_ENV=development webpack --watch --progress --hide-modules --config=webpack.config.js",
     "prod": "npm run production",
     "production": "cross-env NODE_ENV=production webpack --progress --hide-modules --config=webpack.config.js",
-    "demo": "http-server demo/ -p 6868"
+    "demo": "http-server demo/ -p 6767"
   },
   "keywords": [],
   "author": "",
