@@ -1,12 +1,8 @@
 import { Helpers } from './helpers';
+import { IScopeData, ScopeType } from './contracts/scope-data.interface';
 
 export class Scope {
-    private _scope: {
-        data: any;
-        originalData: any;
-        funcBackAfter: Function;
-        funcBack: Function;
-    };
+    private _scope: ScopeType;
 
     constructor(scope) {
         this._scope = scope || {};
@@ -22,7 +18,7 @@ export class Scope {
      * @param {Object|Function|Array} funcBacks - Funciones que se ejecutaran al actualizar el modelo de datos
      */
     add(varName: string, data, funcBacks?) {
-        this._scope[varName] = this._scope[varName] || {};
+        this._scope[varName] = this._scope[varName] || <IScopeData>{};
         this._scope[varName].data = data;
         this._scope[varName].originalData = data;
         this._scope[varName].funcBackAfter = () => {};
