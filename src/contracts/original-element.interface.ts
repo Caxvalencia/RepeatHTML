@@ -1,6 +1,6 @@
 export interface IOriginalElement {
     element: HTMLElement;
-    elementClone: HTMLElement;
+    clone: HTMLElement;
     parent: HTMLElement;
     childs: Array<any>;
 }

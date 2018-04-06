@@ -188,7 +188,7 @@ export class RepeatHtml {
             if (!isRefresh) {
                 this.originalElements.push(<IOriginalElement>{
                     element: element.cloneNode(true),
-                    elementClone: elementCopy,
+                    clone: elementCopy,
                     parent: element.parentElement,
                     childs: [commentStart]
                 });
