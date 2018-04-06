@@ -1,12 +1,13 @@
-import { patterns } from './patterns';
+import { IOriginalElement } from './contracts/original-element.interface';
+import { IQuery } from './contracts/query.interface';
 import { Filter } from './filter';
 import { Helpers } from './helpers';
+import { patterns } from './patterns';
 import { Scope } from './scope';
-import { IQuery } from './contracts/query.interface';
 
 export class RepeatHtml {
     filter: Filter;
-    originalElements: any[];
+    originalElements: IOriginalElement[];
     repeatAttributeName: string;
     selector: string;
     _scope: Scope;
@@ -150,7 +151,7 @@ export class RepeatHtml {
      * @method
      */
     init(isRefresh, findParents) {
-        let elements: any = document.querySelectorAll(
+        let elements: NodeListOf<Element> = document.querySelectorAll(
             this.selector + (findParents ? '' : ' ' + this.selector)
         );
         let element = null;
@@ -163,7 +164,7 @@ export class RepeatHtml {
         }
 
         for (let i = 0; i < elements.length; i++) {
-            element = elements[i].element || elements[i];
+            element = /*elements[i].element || */elements[i];
 
             repeatData = this.resolveQuery(
                 element.dataset[this.repeatAttributeName]
@@ -187,7 +188,7 @@ export class RepeatHtml {
 
             if (!isRefresh) {
                 //Almacenar cada elemento original en una arreglo
-                this.originalElements.push({
+                this.originalElements.push(<IOriginalElement>{
                     element: element.cloneNode(true),
                     elementClone: elementCopy,
                     parentElement: element.parentElement,
