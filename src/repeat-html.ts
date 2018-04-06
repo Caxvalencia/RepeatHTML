@@ -151,10 +151,10 @@ export class RepeatHtml {
      * @method
      */
     init(isRefresh, findParents) {
-        let elements: NodeListOf<Element> = document.querySelectorAll(
+        let elements: NodeListOf<HTMLElement> = document.querySelectorAll(
             this.selector + (findParents ? '' : ' ' + this.selector)
         );
-        let element = null;
+        let element: HTMLElement = null;
         let repeatData: IQuery = null;
         let lenElements = 0;
         let elementsRepeatContent = document.createDocumentFragment();
@@ -164,7 +164,7 @@ export class RepeatHtml {
         }
 
         for (let i = 0; i < elements.length; i++) {
-            element = /*elements[i].element || */elements[i];
+            element = /*elements[i].element || */ elements[i];
 
             repeatData = this.resolveQuery(
                 element.dataset[this.repeatAttributeName]
@@ -174,24 +174,22 @@ export class RepeatHtml {
                 continue;
             }
 
-            let elementHtml = element.innerHTML;
-
-            let elementCopy = element.cloneNode(true),
-                commentStart = document.createComment(
-                    'RepeatHTML: start( ' +
-                        element.dataset[this.repeatAttributeName] +
-                        ' )'
-                );
+            let elementHtml: string = element.innerHTML;
+            let elementCopy = <HTMLElement>element.cloneNode(true);
+            let commentStart = document.createComment(
+                'RepeatHTML: start( ' +
+                    element.dataset[this.repeatAttributeName] +
+                    ' )'
+            );
 
             elementCopy.removeAttribute('data-' + this.repeatAttributeName);
             elementCopy.removeAttribute('data-filter');
 
             if (!isRefresh) {
-                //Almacenar cada elemento original en una arreglo
                 this.originalElements.push(<IOriginalElement>{
                     element: element.cloneNode(true),
                     elementClone: elementCopy,
-                    parentElement: element.parentElement,
+                    parent: element.parentElement,
                     childs: [commentStart]
                 });
 
@@ -202,7 +200,7 @@ export class RepeatHtml {
 
             //Comentario delimitador de inicio
             repeatData.datas.forEach(data => {
-                let elementCloned = elementCopy.cloneNode(false);
+                let elementCloned = <HTMLElement>elementCopy.cloneNode(false);
 
                 elementCloned.innerHTML = Helpers.renderTemplate(elementHtml, {
                     [repeatData.varsIterate[0]]: data
