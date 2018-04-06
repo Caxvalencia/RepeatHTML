@@ -2,6 +2,7 @@ import { patterns } from './patterns';
 import { Filter } from './filter';
 import { Helpers } from './helpers';
 import { Scope } from './scope';
+import { IQuery } from './contracts/query.interface';
 
 export class RepeatHtml {
     filter: Filter;
@@ -72,10 +73,15 @@ export class RepeatHtml {
      * Repitado de los datos
      * @private
      * @method
+    /**
+     * 
+     * 
+     * @param {any} varName 
+     * @param {any} element 
      */
-    reRender(varName, element) {
+    reRender(varName: string, element) {
         let elements = this.originalElements;
-        let repeatData = null;
+        let repeatData: IQuery = null;
         let elementData;
         let elementsRepeatContent = document.createDocumentFragment();
 
@@ -116,7 +122,7 @@ export class RepeatHtml {
                 let elementClon = elementData.elementClone.cloneNode(false);
 
                 elementClon.innerHTML = Helpers.renderTemplate(elementHTML, {
-                    [repeatData.varsIterate]: data
+                    [repeatData.varsIterate[0]]: data
                 });
 
                 elementsRepeatContent.appendChild(elementClon);
@@ -148,7 +154,7 @@ export class RepeatHtml {
             this.selector + (findParents ? '' : ' ' + this.selector)
         );
         let element = null;
-        let repeatData = null;
+        let repeatData: IQuery = null;
         let lenElements = 0;
         let elementsRepeatContent = document.createDocumentFragment();
 
@@ -198,7 +204,7 @@ export class RepeatHtml {
                 let elementCloned = elementCopy.cloneNode(false);
 
                 elementCloned.innerHTML = Helpers.renderTemplate(elementHtml, {
-                    [repeatData.varsIterate]: data
+                    [repeatData.varsIterate[0]]: data
                 });
 
                 elementsRepeatContent.appendChild(elementCloned);
@@ -224,11 +230,11 @@ export class RepeatHtml {
 
     /**
      * Resuelve la cadena de texto del repeat a dos propiedades
-     * @private
-     * @method
+     * @param {string} statement
+     * @returns {IQuery}
      */
-    resolveQuery(query) {
-        query = query.split(patterns.splitQuery);
+    resolveQuery(statement: string): IQuery {
+        let query = statement.split(patterns.splitQuery);
 
         if (query[0].trim() === '' && !query[1]) {
             return {
@@ -247,10 +253,10 @@ export class RepeatHtml {
 
     /**
      * Codifica los datos de entrada dependiendo del tipo, array o string
-     * @private
-     * @method
+     * @param {string} strData
+     * @returns
      */
-    parseData(strData) {
+    parseData(strData: string) {
         if (this._scope.get(strData)) {
             return this.filter.apply(strData);
         }
