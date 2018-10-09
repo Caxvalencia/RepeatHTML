@@ -1,6 +1,6 @@
-# RepeatHTML.js
+# RepeatHtml.js
 
-Librería Javascript que ayuda con la gestión de contenido dinámico y repetitivo para HTML
+## JavaScript library that help you for manage dynamic content and repeat it for the HTML
 
 ```javascript
 let repeat = new RepeatHtml({
@@ -30,7 +30,7 @@ repeat.scope(
 );
 ```
 
-````html
+```html
 <ul>
     <li data-repeat='user in users'>
         <button id='{{ user.name }}'>
@@ -49,9 +49,9 @@ repeat.scope(
         </td>
     </tr>
 </table>
-````
+```
 
-Resultado
+## Output
 
 ```html
 <table border>
